@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./css/styles.css">
+    <link rel="stylesheet" type="text/css" href="./css/bootstrap.css">
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <title>Citas JS</title>
+</head>
+<body>
+    <h2 class="text-center titulo mt-3">Administrador de Citas</h2>
+    <div class=" border container mt-3">
+        <div id="contenido" class="row">
+            <div class="col p-3 agrega-cita">
+                <form class="row g-3" id="cita-nueva">
+                    <legend class="p-3">Datos del Paciente</legend>
+                    <div class="col-md-6">
+                      <label for="mascota" class="form-label">Nombre Mascota</label>
+                      <input type="text" class="form-control" id="mascota" name="mascota" placeholder="Nombre de la Mascota">
+                    </div>
+                    <div class="col-md-6 ">
+                      <label for="propietario" class="form-label">Propietario</label>
+                      <input type="text" class="form-control" id="propietario" name="propietario" placeholder="Nombre del Propietario">
+                    </div>
+                    <div class="col-4  mt-2">
+                      <label for="nombre" class="form-label">Teléfono</label>
+                      <input type="text" class="form-control" id="telefono" name="telefono"  placeholder="Teléfono">
+                    </div>
+                    <div class="col-4  mt-2">
+                      <label for="fecha" class="form-label">Fecha Ingreso:</label>
+                      <input type="date" class="form-control" id="fecha" name="fecha"  >
+                    </div>
+                    <div class="col-md-4 mt-2">
+                      <label for="hora" class="form-label">Hora Ingreso</label>
+                      <input type="time" class="form-control" id="hora" name="hora">
+                    </div>
+                    <div class="col-md-12  mt-2">
+                      <label for="sintomas" class="form-label">Síntomas</label>
+                      <textarea class="form-control" name="sintomas" id="sintomas" name="sintomas" cols="30" rows="5"></textarea>
+                    </div> 
+                    <div class="col-12 mt-2">
+                      <button type="submit" class="btn btn-primary">Agregar Cita</button>
+                    </div>
+                  </form>
+
+                  <!--Mostrar las Citas-->
+                  <div class="row mt-2">
+                        <div class="col">
+                            <h2 id="listado">Listado de Citas</h2>
+                            <table class="table table-hover" id="lista-cita">
+                                <thead >
+                                    <tr>
+                                      <th scope="col">Mascota</th>
+                                      <th scope="col">Propietario</th>
+                                      <th scope="col">Teléfono</th>
+                                      <th scope="col">Fecha</th>
+                                      <th scope="col">Hora</th>
+                                      <th scope="col">Sintomas</th>
+                                      <th scope="col">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+
+                                  </tbody>
+                            </table>
+                        </div>
+                   </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js" type="module"></script>
+</body>
+</html>
