@@ -10,6 +10,7 @@ Pryecto CRUD con Javascript puro (creación de citas):
   <li>HTML5</li>
   <li>CSS3</li>
   <li>Bootstrap</li>
+  <li>IndexedDB</li>
 </ul>
 
 # Funcionalidades
