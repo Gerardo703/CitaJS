@@ -1,5 +1,5 @@
-import { eliminarCita, cargarEdicion } from '../funciones.js';
-import { tablaCitas, heading } from '../selectores.js'
+import { eliminarCita, cargarEdicion, DB } from '../funciones.js';
+import  { tablaCitas, heading} from '../selectores.js'
  
 class UI {
 
@@ -31,53 +31,70 @@ class UI {
         }, 3000);
    }
 
-   imprimirCitas({citas}) { // Se puede aplicar destructuring desde la función...
+   imprimirCitas(citas) {
        
         this.limpiarHTML();
 
         this.textoHeading(citas);
 
-        citas.forEach(cita => {
-            const {mascota, propietario, telefono, fecha, hora, sintomas, id } = cita;
+        // Leer contenido de la base de datos
+        const objectStore = DB.transaction('citas').objectStore('citas');
+        const fnTextoHeading = this.textoHeading;
 
-            const tablaHTML = document.createElement('tr');
-            tablaHTML.dataset.id = id;
+        const total = objectStore.count();
+        total.onsuccess = () => {
+            fnTextoHeading(total.result);
+        }
 
-            // Scripting 
+        objectStore.openCursor().onsuccess = e => {
+            const cursor = e.target.result;
 
-            tablaHTML.innerHTML = `
-            <td>${mascota}</td>
-            <td>${propietario}</td>
-            <td>${telefono}</td>
-            <td>${fecha}</td>
-            <td>${hora}</td>
-            <td>${sintomas}</td>
-            `;
+            if(cursor){
 
-        
-            // Agregar un botón de eliminar...
-            const btnEliminar = document.createElement('button');
-            btnEliminar.onclick = () => eliminarCita(id); // añade la opción de eliminar
-            btnEliminar.classList.add('btn', 'btn-danger', 'mr-2', 'mt-2');
-            btnEliminar.innerHTML = 'Eliminar'
+                const {mascota, propietario, telefono, fecha, hora, sintomas, id } = cursor.value;
 
-            // Añade un botón de editar...
-            const btnEditar = document.createElement('button');
-            btnEditar.onclick = () => cargarEdicion(cita);
+                const tablaHTML = document.createElement('tr');
+                tablaHTML.dataset.id = id;
 
-            btnEditar.classList.add('btn', 'btn-info', 'mt-2');
-            btnEditar.innerHTML = 'Editar'
+                // Scripting 
 
-            tablaHTML.appendChild(btnEliminar);
-            tablaHTML.appendChild(btnEditar);
+                tablaHTML.innerHTML = `
+                <td>${mascota}</td>
+                <td>${propietario}</td>
+                <td>${telefono}</td>
+                <td>${fecha}</td>
+                <td>${hora}</td>
+                <td>${sintomas}</td>
+                `;
 
-            tablaCitas.appendChild(tablaHTML);
             
-        });    
+                // Agregar un botón de eliminar...
+                const btnEliminar = document.createElement('button');
+                btnEliminar.onclick = () => eliminarCita(id); // añade la opción de eliminar
+                btnEliminar.classList.add('btn', 'btn-danger', 'mr-2', 'mt-2');
+                btnEliminar.innerHTML = 'Eliminar'
+
+                // Añade un botón de editar...
+                const btnEditar = document.createElement('button');
+                btnEditar.onclick = () => cargarEdicion(cita);
+
+                btnEditar.classList.add('btn', 'btn-info', 'mt-2');
+                btnEditar.innerHTML = 'Editar'
+
+                tablaHTML.appendChild(btnEliminar);
+                tablaHTML.appendChild(btnEditar);
+
+                tablaCitas.appendChild(tablaHTML);
+                
+                // Ir al siguiente elemento
+                cursor.continue();
+            }
+        }   
    }
 
-   textoHeading(citas) {
-        if(citas.length > 0 ) {
+   textoHeading(resultado) {
+       
+        if(resultado > 0 ) {
             heading.textContent = 'Administra tus Citas ';
         } else {
             heading.textContent = 'Sin Citas';

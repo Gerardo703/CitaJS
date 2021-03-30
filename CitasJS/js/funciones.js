@@ -1,6 +1,8 @@
 import Citas from './Clases/Citas.js';
 import UI from './Clases/UI.js';
 
+
+
 import { 
     mascotaInput, 
     propietarioInput, 
@@ -10,6 +12,8 @@ import {
     sintomasInput, 
     formulario 
 } from './selectores.js';
+
+
 
 const administrarCitas = new Citas();
 const ui = new UI(administrarCitas);
@@ -24,6 +28,8 @@ const citaObj = {
     hora:'',
     sintomas: ''
 }
+
+export let DB;
 
 export function datosCita(e) {
      //console.log(e.target.name) // Obtener el Input
@@ -46,11 +52,21 @@ export function nuevaCita(e) {
         // Estamos editando
         administrarCitas.editarCita( {...citaObj} );
 
-        ui.imprimirAlerta('Guardado Correctamente');
+        // Editar el IndexedDB
+        const transaction = DB.transaction(['citas'], 'readwrite');
+        const objectStore = transaction.objectStore('citas');
+        
+        objectStore.put(citaObj);
 
-        formulario.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+        transaction.oncomplete = () => {
+            ui.imprimirAlerta('Guardado Correctamente');
 
-        editando = false;
+            formulario.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+
+            editando = false;
+        }
+
+        
 
     } else {
         // Nuevo Registrando
@@ -61,13 +77,27 @@ export function nuevaCita(e) {
         // Añade la nueva cita
         administrarCitas.agregarCita({...citaObj});
 
-        // Mostrar mensaje de que todo esta bien...
-        ui.imprimirAlerta('Se agregó correctamente')
+        // Insertar en la base de datos IndexedDB
+        const transaction =  DB.transaction(['citas'], 'readwrite');
+
+        // Habilitar el objectstore
+        const objectStore = transaction.objectStore('citas');
+
+        // Insertarlo en DB
+        objectStore.add(citaObj);
+
+        transaction.oncomplete = () => {
+            console.log('Cita agregada');
+
+            // Mostrar mensaje de que todo esta bien...
+            ui.imprimirAlerta('Se agregó correctamente');
+        }
+
     }
 
 
     // Imprimir el HTML de citas
-    ui.imprimirCitas(administrarCitas);
+    ui.imprimirCitas();
 
     // Reinicia el objeto para evitar futuros problemas de validación
     reiniciarObjeto();
@@ -89,11 +119,20 @@ export function reiniciarObjeto() {
 
 
 export function eliminarCita(id) {
-    administrarCitas.eliminarCita(id);
+    const transaction = DB.transaction(['citas'], 'readwrite');
+    const objectStore = transaction.objectStore('citas');
 
-    ui.imprimirCitas(administrarCitas);
+    objectStore.delete(id);
 
-    ui.imprimirAlerta('Cita eliminada correctamente');
+    transaction.oncomplete = () => {
+        ui.imprimirCitas();
+        ui.imprimirAlerta('Cita eliminada correctamente');
+    }
+
+    transaction.onerror = () => {
+        console.log('Hubo un error');
+    }
+
 }
 
 export function cargarEdicion(cita) {
@@ -120,5 +159,47 @@ export function cargarEdicion(cita) {
     formulario.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
 
     editando = true;
+
+}
+
+export function crearDB(){
+    // Crear la base de datos
+    const crearDB = window.indexedDB.open('citas', 1);
+
+    // Verificar si hay errores
+    crearDB.onerror = () => {
+        console.log('Hubo un error en la creación de la DB');
+    }
+
+    // Si todo está ok
+    crearDB.onsuccess = () => {
+        console.log('Base de datos creada correctamente');
+
+        DB = crearDB.result;
+
+        // Mostramos las citas al cargar { Pero con IDB lista}
+        ui.imprimirCitas();
+    }
+
+    // Configuración del Schema de DB
+    crearDB.onupgradeneeded = e => {
+        const db = e.target.result;
+
+        const objectStore = db.createObjectStore('citas', {
+            keyPath: 'id',
+            autoIncrement: true
+        });
+
+        // Definir las columnas
+        objectStore.createIndex('mascota', 'mascota', { unique: false });
+        objectStore.createIndex('propietario', 'propietario', { unique: false });
+        objectStore.createIndex('telefono', 'telefono', { unique: false });
+        objectStore.createIndex('fecha', 'fecha', { unique: false });
+        objectStore.createIndex('hora', 'hora', { unique: false });
+        objectStore.createIndex('sintomas', 'sintomas', { unique: false });
+        objectStore.createIndex('id', 'id', { unique: false });
+
+        console.log('Base de datos creada');
+    }
 
 }

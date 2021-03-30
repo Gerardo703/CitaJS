@@ -1,4 +1,4 @@
-import { datosCita, nuevaCita } from '../funciones.js';
+import { datosCita, nuevaCita, crearDB } from '../funciones.js';
 
 import { 
     mascotaInput, 
@@ -26,6 +26,9 @@ class App {
 
         // Fromulario para nuevas citas
         formulario.addEventListener('submit', nuevaCita);
+
+        // Crear DB
+        crearDB();
     }
 }
 
