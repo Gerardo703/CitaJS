@@ -52,7 +52,7 @@ class UI {
             if(cursor){
 
                 const {mascota, propietario, telefono, fecha, hora, sintomas, id } = cursor.value;
-
+                const cita = cursor.value;
                 const tablaHTML = document.createElement('tr');
                 tablaHTML.dataset.id = id;
 
